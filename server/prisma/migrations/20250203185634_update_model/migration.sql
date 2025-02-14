@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Url" ALTER COLUMN "ownerId" DROP NOT NULL,
+ALTER COLUMN "updatedAt" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "updatedAt" DROP DEFAULT;

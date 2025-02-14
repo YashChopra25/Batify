@@ -1,7 +1,16 @@
-import React from "react";
+import { GetToken } from "@/utils/GetToken";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  return <div className="p-2 text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl text-white font-bold">Yatirly</div>;
+  const token = GetToken();
+  return (
+    <div className="px-6 py-2  text-[#cfcde4] font-bold flex justify-between items-center">
+      <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl">
+        Yatirly
+      </span>
+      {token && <Link to="/dashboard">Dashboard</Link>}
+    </div>
+  );
 };
 
 export default Navbar;

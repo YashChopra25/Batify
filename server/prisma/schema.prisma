@@ -1,0 +1,41 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Url {
+    id        Int      @id @default(autoincrement())
+    ownerId   Int?
+    longURL   String   @db.VarChar(255)
+    ShortURL  String   @unique // Add @unique here to make ShortURL unique
+    createdAt DateTime @default(now()) @db.Timestamp(6)
+    updatedAt DateTime @updatedAt @db.Timestamp(6)
+    visits    Visit[]
+    owner     User?    @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Visit {
+    id        Int      @id @default(autoincrement())
+    urlId     Int // Foreign key to Url
+    ip        String? // IP address of the visitor
+    userAgent String? // User's browser info
+    browser   String?
+    device    String?
+    os        String?
+    visitedAt DateTime @default(now()) @db.Timestamp(6)
+    url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    name      String?  @db.VarChar(255)
+    email     String   @unique @db.VarChar(255)
+    password  String
+    createdAt DateTime @default(now()) @db.Timestamp(6)
+    updatedAt DateTime @updatedAt @db.Timestamp(6)
+    posts     Url[]
+}

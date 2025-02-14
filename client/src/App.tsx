@@ -10,16 +10,16 @@ const App = () => {
   return (
     <div
       containerClassName="justify-start items-start"
-      className="bg-black min-h-screen"
+      className="bg-[#25293c] min-h-screen"
     >
       <Navbar />
       <div className="px-6 mt-10 flex flex-col gap-5">
         <div className="">
-          <p className="text-5xl text-white font-bold inter-var text-center">
+          <p className="text-5xl text-[#cfcde4] font-bold inter-var text-center">
             Welcome Yatifer
           </p>
-          <p className="w-4/5 text-3xl mx-auto  text-white font-bold inter-var text-center">
-            Build stronger digital connections{" "}
+          <p className="w-4/5 text-3xl mx-auto  text-[#cfcde4] font-bold inter-var text-center">
+            Build stronger digital connections          
           </p>
         </div>
         {/* <TextGenerateEffect

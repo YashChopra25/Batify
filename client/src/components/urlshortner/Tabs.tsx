@@ -24,7 +24,7 @@ const Tabs = () => {
         ].map((tab) => (
           <div
             key={tab.value}
-            className={`px-4 py-3 rounded-xl text-white cursor-pointer font-bold text-base text-center transition-all duration-300 flex gap-3 items-center justify-center ${
+            className={`px-4 py-3 rounded-xl text-[#cfcde4] cursor-pointer font-bold text-base text-center transition-all duration-300 flex gap-3 items-center justify-center ${
               activeTab === tab.value ? "bg-white" : "bg-gray-600"
             }`}
             onClick={() => setActiveTab(tab.value)}

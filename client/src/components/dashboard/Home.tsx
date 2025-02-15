@@ -1,9 +1,7 @@
-import React from "react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -16,95 +14,106 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ChartNoAxesCombined, TrendingUp } from "lucide-react";
-import TableComponent from "@/components/dashboard/TableComponent";
-const chartData = [
-  { month: "January", desktop: 1 },
-  { month: "February", desktop: 0 },
-  { month: "March", desktop: 0 },
-  { month: "April", desktop: 0 },
-  { month: "May", desktop: 0 },
-  { month: "June", desktop: 0 },
-  { month: "July", desktop: 0 },
-  { month: "August", desktop: 0 },
-  { month: "September", desktop: 0 },
-  { month: "October", desktop: 10 },
-  { month: "November", desktop: 0 },
-  { month: "December", desktop: 0 },
-];
+import { TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import ToastFn from "../Toaster";
+import axiosInstance from "@/api/axiosInstance";
+import { ScrollArea } from "../ui/scroll-area";
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
+const chartConfig: ChartConfig = {
+  views: {
+    label: "Total Views",
     color: "hsl(var(--chart-1))",
   },
-} satisfies ChartConfig;
+};
 
-const CountryView = [
-  {
-    name: "United States of America",
-    views: "76%",
-  },
-  {
-    name: "Canada",
-    views: "58%",
-  },
-  {
-    name: "Mexico",
-    views: "83%",
-  },
-  {
-    name: "Brazil",
-    views: "64%",
-  },
-  {
-    name: "United States of America",
-    views: "76%",
-  },
-  {
-    name: "Canada",
-    views: "58%",
-  },
-  {
-    name: "Mexico",
-    views: "83%",
-  },
-  {
-    name: "Brazil",
-    views: "64%",
-  },
-];
+interface AnalyticsItem {
+  name: string;
+  views: string; // percentage in string format
+}
+
+interface MonthlyAnalyticsItem {
+  name: string;
+  views: number;
+}
+
 const Home = () => {
+  const [browser, setBrowser] = useState<AnalyticsItem[]>([]);
+  const [os, setOs] = useState<AnalyticsItem[]>([]);
+  const [monthAnalytics, setMonthAnalytics] = useState<MonthlyAnalyticsItem[]>(
+    []
+  );
+  const [totalVistes, setTotalVistes] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchAnaytics = async () => {
+      try {
+        const { data } = await axiosInstance.get("/v1/analytics/fetch");
+        console.log(data);
+        setTotalVistes(data.totalVisits || 0);
+        setMonthAnalytics(data.monthAnalytics || []);
+        setBrowser(data.browser || []);
+        setOs(data.os || []);
+      } catch (err) {
+        ToastFn(
+          "error",
+          "Error",
+          "something went wrong ,while fetching analytics"
+        );
+      }
+    };
+    fetchAnaytics();
+  }, []);
+
   return (
     <div className="py-4 flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
         <Card className="bg-dark-bg-card border-[#44485e] overflow-hidden col-span-1 ">
           <CardHeader className="border-b border-[#44485e]">
             <CardTitle className="text-[#cfcde4] flex justify-between items-center">
-              <span>Country</span>
-              <span className="text-sm">Page views</span>
+              <span>Type</span>
+              <span className="text-sm">Page views(in %)</span>
             </CardTitle>
           </CardHeader>
-          <div className="px-2 py-2 min-h-[182px] max-h-[182px] flex flex-col gap-[0.45rem]">
-            {CountryView.map((item) => {
-              // Extract the percentage value from the 'views' (e.g., "76%")
-              const percentage = parseInt(item.views); // Remove '%' and get the numeric value
-              const backgroundStyle = {
-                background: `linear-gradient(to right, #44485e ${percentage}%, transparent 0%)`,
-              };
+          <ScrollArea className="px-2 py-2 min-h-[182px] max-h-[182px] flex flex-col gap-2">
+            <div>
+              <p className="text-white/35 text-xs">Browser: </p>
+              {browser.map((item) => {
+                const percentage = parseInt(item?.views || "0");
+                const backgroundStyle = {
+                  background: `linear-gradient(to right, #44485e ${percentage}%, transparent 0%)`,
+                };
+                return (
+                  <div
+                    key={item.name}
+                    className="px-3 py-1 flex justify-between items-center text-sm hover:!bg-[#44485e] rounded transition-colors duration-300 ease-in-out my-1"
+                    style={backgroundStyle}
+                  >
+                    <p className="text-[#cfcde4]">{item.name}</p>
+                    <p className="text-[#cfcde4]">{item.views}</p>
+                  </div>
+                );
+              })}
 
-              return (
-                <div
-                  key={item.name}
-                  className="px-3 py-1 flex justify-between items-center text-sm hover:!bg-[#44485e] rounded transition-colors duration-300 ease-in-out"
-                  style={backgroundStyle} // Apply the dynamic background style here
-                >
-                  <p className="text-[#cfcde4]">{item.name}</p>
-                  <p className="text-[#cfcde4]">{item.views}</p>
-                </div>
-              );
-            })}
-          </div>
+              <p className="text-white/35 text-xs">Operating System: </p>
+              {os.map((item) => {
+                const percentage = parseInt(item?.views || "0");
+                const backgroundStyle = {
+                  background: `linear-gradient(to right, #44485e ${percentage}%, transparent 0%)`,
+                };
+                return (
+                  <div
+                    key={item.name}
+                    className="px-3 py-1 flex justify-between items-center text-sm hover:!bg-[#44485e] rounded transition-colors duration-300 ease-in-out my-1"
+                    style={backgroundStyle}
+                  >
+                    <p className="text-[#cfcde4]">{item.name}</p>
+                    <p className="text-[#cfcde4]">{item.views}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
         </Card>
         <Card className="bg-dark-bg-card border-[#44485e] overflow-hidden col-span-1 ">
           <CardHeader className="border-b border-[#44485e]">
@@ -114,7 +123,7 @@ const Home = () => {
           </CardHeader>
           <div className=" px-2 py-2 min-h-[182px] max-h-[182px] text-[#cfcde4] text-7xl font-semibold flex justify-center items-center gap-2">
             <TrendingUp size={70} className="mt-4" />
-            <span>{abbreviateNumber(18899, 2, { padding: false })}</span>
+            <span>{abbreviateNumber(totalVistes, 2, { padding: false })}</span>
           </div>
         </Card>
       </div>
@@ -122,14 +131,14 @@ const Home = () => {
         <CardHeader className="text-[#cfcde4]">
           <CardTitle>Report</CardTitle>
           <CardDescription className="text-[#cfcde4]">
-            Showing the data for the current year
+            Showing the data for the current year({new Date().getFullYear()})
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-72 w-full">
             <AreaChart
               accessibilityLayer
-              data={chartData}
+              data={monthAnalytics}
               margin={{
                 left: 12,
                 right: 12,
@@ -138,7 +147,7 @@ const Home = () => {
             >
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="name"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -148,13 +157,7 @@ const Home = () => {
                 cursor={false}
                 content={<ChartTooltipContent indicator="line" />}
               />
-              <Area
-                dataKey="desktop"
-                type="natural"
-                // fill="var(--color-desktop)"
-                fillOpacity={0.4}
-                // stroke="var(--color-desktop)"
-              />
+              <Area dataKey="views" type="natural" fillOpacity={0.4} />
             </AreaChart>
           </ChartContainer>
         </CardContent>

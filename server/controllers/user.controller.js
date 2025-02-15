@@ -3,6 +3,26 @@ import { prisma } from "../config/DBconnect.js";
 import { generateToken } from "../utils/general.js";
 import bcrypt from "bcrypt";
 class UserControllerClass {
+  async verifyUser(req, res) {
+    try {
+      const user = req.user;
+      return res.json({
+        success: true,
+        message: "User is verified",
+        data: {
+          name: user.name,
+          email: user.email,
+          id: user.id,
+        },
+      });
+    } catch (err) {
+      return res.json({
+        success: false,
+        message: "Something went wrong",
+        error: err,
+      });
+    }
+  }
   async signUp(req, res) {
     try {
       const { name, email, password } = req.body;
@@ -58,6 +78,38 @@ class UserControllerClass {
       });
     }
   }
+  async fetchUserUrl(req, res) {
+    try {
+      const prismaAnalytics = await prisma.url.findMany({
+        where: {
+          ownerId: req.user.id,
+        },
+        include: {
+          _count: true,
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Url is fetched",
+        data: prismaAnalytics,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong",
+        error,
+      });
+    }
+  }
   async fetchUser(req, res) {
     try {
       console.log(req.user);
@@ -82,7 +134,7 @@ class UserControllerClass {
         message: "User is fetchdsfed",
         data: prismaUser,
       });
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
       return res.status(500).json({
         success: false,

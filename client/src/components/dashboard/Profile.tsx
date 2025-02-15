@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { userFieldProfile } from "@/Types";
 import validator from "validator";
+import { useAppSelector } from "@/store/auth.store";
 const Profile = () => {
+  const user = useAppSelector((state) => state.auth.user);
   const [userfields, setUserFields] = React.useState<userFieldProfile>({
     first_name: "",
     last_name: "",
     email: "",
   });
+  useEffect(() => {
+    setUserFields({
+      first_name: user?.name?.split(" ")[0] || "",
+      last_name: user?.name?.split(" ")[1] || "",
+      email: user?.email || "",
+    });
+  }, [user]);
   const [error, setError] = React.useState<userFieldProfile>({
     first_name: "",
     last_name: "",
@@ -51,11 +60,15 @@ const Profile = () => {
       email: "",
     });
   };
-  const SubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const SubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
     if (handleError()) return;
     console.log(userfields);
+    // const { data } = await axiosInstance.put(
+    //   "/v1/auth/user/update",
+    //   userfields
+    // );
   };
   return (
     <div>
@@ -70,6 +83,7 @@ const Profile = () => {
               id="first_name"
               placeholder="Enter your first name"
               onChange={handleInputChange}
+              value={userfields.first_name}
               className={error.first_name ? "border-red-500" : ""}
             />
             {error.first_name && (
@@ -84,6 +98,7 @@ const Profile = () => {
               id="last_name"
               placeholder="Enter your last name"
               onChange={handleInputChange}
+              value={userfields.last_name}
               className={error.last_name ? "border-red-500" : ""}
             />
             {error.last_name && (
@@ -98,6 +113,7 @@ const Profile = () => {
               id="email"
               placeholder="Enter your Email"
               onChange={handleInputChange}
+              value={userfields.email}
               className={error.email ? "border-red-500" : ""}
             />
             {error.email && (

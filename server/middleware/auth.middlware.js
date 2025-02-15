@@ -7,7 +7,7 @@ export const AuthMiddleware = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
-    console.log(token)
+    console.log(token);
     const decoded = decodeToken(token);
     const fetchUser = await prisma.user.findFirst({
       where: {
@@ -21,9 +21,10 @@ export const AuthMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     console.log("error in auth middleware", error);
+    res.clearCookie("token");
     return res
       .status(401)
-      .json({ success: false, message: "Something went wrong",error });
+      .json({ success: false, message: "Something went wrong", error });
   }
 };
 

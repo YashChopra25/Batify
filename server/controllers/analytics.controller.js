@@ -1,5 +1,33 @@
 import { prisma } from "../config/DBconnect.js";
 
+const months = [
+  "Janurary",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+function formatData(data, category) {
+  const total = data.totalVisits;
+  return Object.entries(data[category]).map(([name, count]) => {
+    const percentage = ((count / total) * 100).toFixed(2) + "%";
+    return { name, views: percentage };
+  });
+}
+
+function formatVisitCounts(visitCounts) {
+  return Object.entries(visitCounts).map(([name, count]) => ({
+    name: name,
+    views: count,
+  }));
+}
 class AnalyticsControllerClass {
   async fetchAnalytics(req, res) {
     try {
@@ -26,13 +54,32 @@ class AnalyticsControllerClass {
         os: {},
         totalVisits: 0, // This will track the total visits for the user
       };
-
+      const visitCounts = {
+        Janurary: 0,
+        February: 0,
+        March: 0,
+        April: 0,
+        May: 0,
+        June: 0,
+        July: 0,
+        August: 0,
+        September: 0,
+        October: 0,
+        November: 0,
+        December: 0,
+      };
       // Loop through the urls and visits to populate distinct counts and total visits
+      const currentDate = new Date();
       prismaAnalytics.forEach((url) => {
         url.visits.forEach((visit) => {
           // Increase total visits count
           visitStats.totalVisits++;
+          const date = new Date(visit.visitedAt);
+          if (currentDate.getFullYear() === date.getFullYear()) {
+            const monthYear = months[date.getMonth()];
 
+            visitCounts[monthYear]++;
+          }
           // Count visits by browser
           if (visit.browser) {
             if (visitStats.browsers[visit.browser]) {
@@ -61,26 +108,19 @@ class AnalyticsControllerClass {
           }
         });
       });
-
-      const result = await prisma.$queryRaw`
-  SELECT 
-    browser,
-    device,
-    os,
-    COUNT(*) AS totalVisits
-  FROM Visit
-  JOIN Url ON Url.id = Visit.urlId
-  WHERE Url.ownerId = ${req.user.id}
-  GROUP BY browser, device, os;
-`;
-
-console.log(result);
-
+      const browser = formatData(visitStats, "browsers");
+      const devices = formatData(visitStats, "devices");
+      const os = formatData(visitStats, "os");
+      const monthAnalytics = formatVisitCounts(visitCounts);
       return res.json({
         success: true,
         message: "Analytics is fetched",
-        data: prismaAnalytics,
-        visitStats,
+        // data: prismaAnalytics,
+        monthAnalytics,
+        totalVisits: visitStats.totalVisits,
+        browser,
+        devices,
+        os,
       });
     } catch (error) {
       console.log(error);

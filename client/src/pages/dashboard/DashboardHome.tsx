@@ -70,8 +70,8 @@ const DashboardHome = () => {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-      <SidebarTrigger className="md:hidden" size={"icon"} />
-      <main className="px-5 py-2 w-full">
+      <SidebarTrigger className="absolute md:hidden" size={"icon"} />
+      <main className="px-5 py-2 w-full max-md:mt-4">
         {/* SidebarTrigger can be added if you need it for toggling */}
         {items.map((item) => {
           if (item.query === activeTab) {

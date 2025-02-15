@@ -1,36 +1,54 @@
-import { WavyBackground } from "@/components/ui/wavy-background";
+import { useLayoutEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "sonner";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import DashboardHome from "./pages/dashboard/DashboardHome";
+import Redirection from "./pages/Redirection";
+import ProtectedRoute from "./utils/ProtectedRoute";
+import Home from "@/Home";
+import { verifyUser } from "./slices/auth.slice";
+import { useAppDispatch } from "./store/auth.store";
 
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import Navbar from "@/components/common/Navbar";
-import Tabs from "./components/urlshortner/Tabs";
-import "@/App.css";
-const word =
-  "With Yatirly Connections Platform, you can easily create and manage URL shorteners, QR codes, and landing pages to connect with your audience. Effortlessly build, customize, and track your content all in one place.";
 const App = () => {
+  const dispatch = useAppDispatch();
+  useLayoutEffect(() => {
+    document.title = "Yatirly yash";
+    dispatch(verifyUser());
+    verifyUser();
+  }, [dispatch]);
   return (
-    <div
-      containerClassName="justify-start items-start"
-      className="bg-[#25293c] min-h-screen"
-    >
-      <Navbar />
-      <div className="px-6 mt-10 flex flex-col gap-5">
-        <div className="">
-          <p className="text-5xl text-[#cfcde4] font-bold inter-var text-center">
-            Welcome Yatifer
-          </p>
-          <p className="w-4/5 text-3xl mx-auto  text-[#cfcde4] font-bold inter-var text-center">
-            Build stronger digital connections          
-          </p>
-        </div>
-        {/* <TextGenerateEffect
-          words={word}
-          className="w-5/6 mx-auto"
-          filter={false}
-          duration={5}
-        /> */}
-        <Tabs />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Home />} path="/" />
+        <Route
+          path="/auth/login"
+          element={
+            <ProtectedRoute>
+              <Login />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/auth/signup"
+          element={
+            <ProtectedRoute>
+              <Signup />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardHome />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/:shortLink" element={<Redirection />} />
+      </Routes>
+      <Toaster />
+    </BrowserRouter>
   );
 };
 

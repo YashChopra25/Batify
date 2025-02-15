@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import {
   ColumnDef,
@@ -30,117 +32,111 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Link } from "react-router-dom";
+import axiosInstance from "@/api/axiosInstance";
+import { ResponseTypeHistory } from "@/Types";
 
-const data: Payment[] = [
+const columns: ColumnDef<ResponseTypeHistory>[] = [
   {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahon99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@hotmail.com",
-  },
-];
-
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
-
-export const columns: ColumnDef<Payment>[] = [
-  {
-    accessorKey: "status",
     header: "Status",
+    cell: ({ row }) => {
+      const index = row.index + 1;
+      return (
+        <div className="capitalize"> {index.toString().padStart(2, "0")} </div>
+      );
+    },
+  },
+  {
+    accessorKey: "ShortURL",
+    header: "ShortUrl",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <Link
+        target="_blank"
+        className="capitalize text-blue-300"
+        to={`${import.meta.env.VITE_FRONTEND_URL}/${row.getValue("ShortURL")} `}
+      >
+        Link
+      </Link>
     ),
   },
   {
-    accessorKey: "email",
+    accessorKey: "longURL",
+    header: () => <div>Long Url </div>,
+    cell: ({ row }) => {
+      return (
+        <div className="font-medium" title={row.getValue("longURL")}>
+          {row.getValue("longURL")}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "createdAt",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="truncate"
+          className=""
         >
-          Email
+          Created At
           <ArrowUpDown />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      }).format(new Date(row.getValue("createdAt")));
+      return <div className="font-medium">{formattedDate}</div>;
     },
   },
   {
-    accessorKey: "visits",
-    header: () => <div className="text-right">Visits</div>,
+    accessorKey: "_count",
+    header: () => <div className="text-right"> Visits </div>,
     cell: ({ row }) => {
-      return <div className="text-right font-medium">100</div>;
+      const counts: { visits: number } = row.getValue("_count");
+      return (
+        <div className="text-right font-medium"> {counts?.visits || 0}</div>
+      );
     },
   },
   {
     id: "actions",
-    enableHiding: false,
+    // enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const ResponseType = row.original;
+      const longURL = ResponseType?.longURL;
+      const ShortURL = `${import.meta.env.VITE_FRONTEND_URL}/${
+        ResponseType?.ShortURL
+      }`;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0 ">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only"> Open menu </span>
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="">
+            <DropdownMenuLabel>Actions </DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(longURL)}
             >
               Copy LongURl
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Copy Short Url</DropdownMenuItem>
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(ShortURL)}
+            >
+              Copy Short Url
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -153,6 +149,25 @@ const TableComponent = () => {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  React.useEffect(() => {
+    const fetchUserUrls = async () => {
+      try {
+        setIsLoading(true);
+        const { data } = await axiosInstance("v1/auth/user/fetch-urls");
+        if (data.success) setData(data.data);
+      } catch (error) {
+        console.log(
+          "error in fetchin the data of the user-created urls",
+          error
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserUrls();
+  }, []);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
@@ -175,7 +190,13 @@ const TableComponent = () => {
       rowSelection,
     },
   });
-
+  if (isLoading) {
+    return (
+      <div className="w-full">
+       Loading.........
+      </div>
+    );
+  }
   return (
     <div className="w-full">
       <div className="rounded-md border">
@@ -184,11 +205,11 @@ const TableComponent = () => {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="text-[#cfcde4] hover:bg-[#393d53] hover:text-[#e7e6f4]"
+                className="hover:bg-[#393d53] hover:text-[#e7e6f4]"
               >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="text-[#cfcde4]">
+                    <TableHead key={header.id} className="text-white">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -207,10 +228,10 @@ const TableComponent = () => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="text-[#cfcde4] hover:bg-[#393d53] hover:text-[#e7e6f4]"
+                  className="hover:bg-[#393d53] hover:text-[#e7e6f4]"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="truncate max-w-16">
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -233,7 +254,7 @@ const TableComponent = () => {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-[#cfcde4]">
+        <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -243,14 +264,12 @@ const TableComponent = () => {
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="!text-[#cfcde4] disabled:!text-[#cfcde4] disabled:bg-dark-bg"
           >
             Previous
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="!text-[#cfcde4] disabled:!text-[#cfcde4] disabled:bg-dark-bg"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

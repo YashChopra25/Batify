@@ -1,5 +1,3 @@
-import React from "react"
-
 export interface ApiResponseCreateLink {
     id: Number,
     ownerId?: Number,
@@ -17,3 +15,19 @@ export interface userFieldProfile {
     last_name: string,
     email: string
 }
+
+export type ResponseTypeHistory = {
+    id: string;
+    ownerId: string;
+    longURL: string;
+    ShortURL: string;
+    createdAt: string;
+    _count: {
+        visits: number;
+    };
+    owner: {
+        id: string;
+        name: string;
+        email: string;
+    };
+};

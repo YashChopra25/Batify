@@ -14,6 +14,7 @@ model Url {
     ShortURL  String   @unique // Add @unique here to make ShortURL unique
     createdAt DateTime @default(now()) @db.Timestamp(6)
     updatedAt DateTime @updatedAt @db.Timestamp(6)
+    isQR      Boolean  @default(false)
     visits    Visit[]
     owner     User?    @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

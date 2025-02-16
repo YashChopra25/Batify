@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import Login from "./pages/auth/Login";
@@ -8,15 +8,20 @@ import Redirection from "./pages/Redirection";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Home from "@/Home";
 import { verifyUser } from "./slices/auth.slice";
-import { useAppDispatch } from "./store/auth.store";
+import { useAppDispatch, useAppSelector } from "./store/auth.store";
+import { GetToken } from "./utils/GetToken";
 
 const App = () => {
   const dispatch = useAppDispatch();
-  useLayoutEffect(() => {
+  const token = GetToken();
+  const {  user, isLoading } = useAppSelector((state) => state.auth);
+  useEffect(() => {
     document.title = "Yatirly yash";
-    dispatch(verifyUser());
-    verifyUser();
-  }, [dispatch]);
+    console.log(token, user, isLoading);
+    if (token && !user && !isLoading) {
+      dispatch(verifyUser());
+    }
+  }, [token, isLoading, user]);
   return (
     <BrowserRouter>
       <Routes>

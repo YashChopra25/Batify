@@ -3,7 +3,7 @@ import { GetToken } from "@/utils/GetToken";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Define types
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -36,9 +36,8 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+    login: (state, action: PayloadAction<{ data: User }>) => {
+      state.user = action.payload.data;
     },
     logoutFn: (state) => {
       state.user = null;

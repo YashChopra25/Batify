@@ -7,7 +7,6 @@ AuthRouter.get("/fetch-urls", AuthMiddleware, UserController.fetchUserUrl);
 AuthRouter.post("/login", UserController.login);
 AuthRouter.get("/logout", UserController.logout);
 AuthRouter.get("/verify", AuthMiddleware, UserController.verifyUser);
+AuthRouter.put("/update", AuthMiddleware, UserController.updateUser);
 
-AuthRouter.get("/fetch", UserController.fetchAllUser);
-AuthRouter.get("/fetch", AuthMiddleware, UserController.fetchUser);
 export default AuthRouter;

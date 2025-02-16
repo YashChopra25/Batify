@@ -3,7 +3,11 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { userFieldProfile } from "@/Types";
 import validator from "validator";
-import { useAppSelector } from "@/store/auth.store";
+import { useAppDispatch, useAppSelector } from "@/store/auth.store";
+import ToastFn from "../Toaster";
+import axiosInstance from "@/api/axiosInstance";
+import { isAxiosError } from "axios";
+import { login, User } from "@/slices/auth.slice";
 const Profile = () => {
   const user = useAppSelector((state) => state.auth.user);
   const [userfields, setUserFields] = React.useState<userFieldProfile>({
@@ -11,6 +15,7 @@ const Profile = () => {
     last_name: "",
     email: "",
   });
+  const [isDisabled, setIsDisabled] = React.useState(true);
   useEffect(() => {
     setUserFields({
       first_name: user?.name?.split(" ")[0] || "",
@@ -24,6 +29,9 @@ const Profile = () => {
     email: "",
   });
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isDisabled) {
+      setIsDisabled(false);
+    }
     const { name, value } = event.target;
     setUserFields((prevFields) => ({
       ...prevFields,
@@ -60,15 +68,29 @@ const Profile = () => {
       email: "",
     });
   };
+  const dispatch = useAppDispatch();
   const SubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
     if (handleError()) return;
     console.log(userfields);
-    // const { data } = await axiosInstance.put(
-    //   "/v1/auth/user/update",
-    //   userfields
-    // );
+    try {
+      const { data } = await axiosInstance.put<{
+        success: boolean;
+        data: User;
+        message: string;
+      }>("/v1/auth/user/update", userfields);
+      console.log(data);
+      ToastFn("success", "Profile", data.message);
+      dispatch(login(data));
+      setIsDisabled(true);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        ToastFn("error", "Profile", error.response?.data.message);
+        return;
+      }
+      ToastFn("error", "Profile", error?.message || "Something went wrong");
+    }
   };
   return (
     <div>
@@ -125,6 +147,7 @@ const Profile = () => {
           type="submit"
           variant={"outline"}
           className="mt-4 bg-dark-bg-card"
+          disabled={isDisabled}
         >
           Update Profile
         </Button>

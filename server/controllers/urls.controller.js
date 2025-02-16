@@ -25,7 +25,7 @@ const createVisit = async (req, prismaUrl) => {
 class URLControllerClass {
   async create(req, res) {
     try {
-      const { longUrl } = req.body;
+      const { longUrl, isQR } = req.body;
       if (!longUrl || validator.isEmpty(longUrl)) {
         return res.json({
           success: false,
@@ -42,10 +42,10 @@ class URLControllerClass {
       let data = {
         longURL: longUrl,
         ShortURL: RandomString(),
+        isQR,
       };
       if (token) {
         const decoded = decodeToken(token);
-        console.log(decoded);
         data.ownerId = decoded.id;
       }
       const prismaUrl = await prisma.url.create({

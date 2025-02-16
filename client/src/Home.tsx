@@ -18,16 +18,16 @@ const Home = () => {
           <p className="text-5xl text-[#cfcde4] font-bold inter-var text-center">
             Welcome Yatifer
           </p>
-          <p className="w-4/5 text-3xl mx-auto  text-[#cfcde4] font-bold inter-var text-center">
+          <p className="w-4/5 text-3xl mx-auto text-[#cfcde4] font-bold  text-center">
             Build stronger digital connections          
           </p>
         </div>
-        {/* <TextGenerateEffect
+        <TextGenerateEffect
           words={word}
           className="w-5/6 mx-auto"
           filter={false}
           duration={5}
-        /> */}
+        />
         <Tabs />
       </div>
     </div>

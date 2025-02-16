@@ -14,6 +14,10 @@ prisma.$use(async (params, next) => {
     params.action === "update"
   ) {
     // p
+    console.log(params);
+    if (!params.args.data.password) {
+      return next(params);
+    }
     params.args.data.password = await bcrypt.hash(
       params.args.data.password,
       10

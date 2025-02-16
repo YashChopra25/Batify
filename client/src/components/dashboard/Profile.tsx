@@ -94,7 +94,7 @@ const Profile = () => {
   };
   return (
     <div>
-      <h3 className="text-3xl font-bold mb-4">Profile </h3>
+      <h3 className="text-3xl font-bold my-4">Profile </h3>
       <form onSubmit={SubmitHandler}>
         <div className="grid grid-cols-2 gap-4">
           <div>

@@ -7,7 +7,7 @@ const Tabs = () => {
   const [activeTab, setActiveTab] = React.useState("link");
 
   return (
-    <div className="flex justify-center items-center flex-col p-4 shadow-md rounded-lg h-auto dark:bg-gray-700 relative">
+    <div className="flex justify-center items-center flex-col p-4 shadow-md rounded-lg h-auto dark:bg-gray-700 relative max-md:p-1">
       {/* Tab Buttons */}
       <div className="mx-auto grid grid-cols-2 gap-7">
         {[
@@ -38,7 +38,7 @@ const Tabs = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="w-4/5 mt-4 h-full mx-auto bg-white px-10 py-16 rounded-[2.4rem]">
+      <div className="w-4/5 mt-4 h-full mx-auto bg-white px-10 py-16 rounded-[2.4rem] max-md:w-full max-md:px-5 max-md:py-8">
         {activeTab === "link" ? <LinkGenerator /> : <QRcodeGenerator />}
       </div>
     </div>

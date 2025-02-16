@@ -47,6 +47,23 @@ const columns: ColumnDef<ResponseTypeHistory>[] = [
     },
   },
   {
+    accessorKey: "isQR",
+    header: "QR code ",
+    cell: ({ row }) => {
+      console.log(row.getValue("isQR"));
+      return (
+        <div
+          className="font-medium"
+          title={
+            row.getValue("isQR") ? "This is a QR code" : "This is not a QR code"
+          }
+        >
+          {row.getValue("isQR") ? "Yes" : "No"}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "ShortURL",
     header: "ShortUrl",
     cell: ({ row }) => (
@@ -98,11 +115,22 @@ const columns: ColumnDef<ResponseTypeHistory>[] = [
   },
   {
     accessorKey: "_count",
-    header: () => <div className="text-right"> Visits </div>,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className=""
+        >
+          Visits
+          <ArrowUpDown />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const counts: { visits: number } = row.getValue("_count");
       return (
-        <div className="text-right font-medium"> {counts?.visits || 0}</div>
+        <div className="text-center font-medium"> {counts?.visits || 0}</div>
       );
     },
   },
@@ -191,11 +219,7 @@ const TableComponent = () => {
     },
   });
   if (isLoading) {
-    return (
-      <div className="w-full">
-       Loading.........
-      </div>
-    );
+    return <div className="w-full">Loading.........</div>;
   }
   return (
     <div className="w-full">

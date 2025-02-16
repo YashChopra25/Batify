@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/select";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { AxiosError, isAxiosError } from "axios";
+import axiosInstance, { ApiResponse } from "@/api/axiosInstance";
+import { ApiResponseCreateLink } from "@/Types";
+import ToastFn from "../Toaster";
 
 const QRcodeGenerator = () => {
   const [options, setOptions] = useState<Options>({
@@ -41,7 +45,7 @@ const QRcodeGenerator = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [qrCode, setQrCode] = useState<QRCodeStyling>();
   const ref = useRef<HTMLDivElement>(null);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   useEffect(() => {
     setQrCode(new QRCodeStyling(options));
   }, []);
@@ -74,9 +78,36 @@ const QRcodeGenerator = () => {
       extension: fileExt,
     });
   };
-  const HandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const HandleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onDataChange(inputValue);
+    try {
+      setIsLoading(true);
+      const { data } = await axiosInstance.post<
+        ApiResponse<ApiResponseCreateLink>
+      >("/v1/urls/create", {
+        longUrl: inputValue,
+        isQR: true,
+      });
+      if (!data.success) {
+        ToastFn("error", "Failed", data.message);
+        return;
+      }
+      const shortURl = `${import.meta.env.VITE_FRONTEND_URL}/${
+        data.data.ShortURL
+      }`;
+      onDataChange(shortURl as string);
+    } catch (error: AxiosError | ApiResponse<ApiResponseCreateLink> | any) {
+      if (isAxiosError(error)) {
+        ToastFn(
+          "error",
+          "Error",
+          error.response?.data.message || "Something went wrong"
+        );
+      }
+      ToastFn("error", "Error", error.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
   const HandleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,7 +129,7 @@ const QRcodeGenerator = () => {
         <div>
           <label
             htmlFor="QrcodeShorter"
-            className="block mb-2 text-4xl font-bold "
+            className="block mb-2 text-4xl font-bold max-md:text-xl"
           >
             Paste your long link here
           </label>
@@ -116,14 +147,14 @@ const QRcodeGenerator = () => {
           <Input id="picture" type="file" onChange={HandleImageUpload} />
         </div>
         <Button
-          className="w-1/3 mb-4 mx-auto"
-          variant={"default"}
+          className="w-1/3 mb-4 mx-auto max-md:w-full"
+          variant={"outline"}
           type="submit"
         >
-          Generate Link
+          {isLoading ? "Generating QR code..." : "Generate QR code"}
         </Button>
       </form>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 max-md:grid-cols-1 gap-2">
         <div ref={ref} id="qrcode-preview" />
         {((options?.data?.length as number) || 0) > 0 && (
           <div>

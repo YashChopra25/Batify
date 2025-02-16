@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import Login from "./pages/auth/Login";
@@ -14,9 +14,9 @@ import { GetToken } from "./utils/GetToken";
 const App = () => {
   const dispatch = useAppDispatch();
   const token = GetToken();
-  const {  user, isLoading } = useAppSelector((state) => state.auth);
+  const { user, isLoading } = useAppSelector((state) => state.auth);
   useEffect(() => {
-    document.title = "Yatirly yash";
+    document.title = "Yatirly";
     console.log(token, user, isLoading);
     if (token && !user && !isLoading) {
       dispatch(verifyUser());

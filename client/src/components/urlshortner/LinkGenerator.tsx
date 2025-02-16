@@ -52,7 +52,7 @@ const LinkGenerator = () => {
         <div>
           <label
             htmlFor="shorterURL-link"
-            className="block mb-2 text-4xl font-bold text-black"
+            className="block mb-2 text-4xl font-bold text-black max-md:text-xl"
           >
             Paste your long link here
           </label>
@@ -65,7 +65,11 @@ const LinkGenerator = () => {
             required
           />
         </div>
-        <Button type="submit" variant={"default"} className="w-1/3 mx-auto">
+        <Button
+          type="submit"
+          variant={"default"}
+          className="w-1/3 mx-auto max-md:w-full"
+        >
           Generate Link
         </Button>
       </form>
@@ -76,20 +80,18 @@ const LinkGenerator = () => {
         </div>
       )}
       {shortURl && (
-        <div>
-          <h1>
-            <span>The shortURl is: </span>
-            <a href={shortURl} className="text-blue-600 italic">
-              {shortURl}
-            </a>
-            <Button
-              variant={"link"}
-              onClick={() => navigator.clipboard.writeText(shortURl)}
-            >
-              Copy link
-            </Button>
-          </h1>
-        </div>
+        <h1>
+          <span>The shortURl is: </span>
+          <a href={shortURl} className="text-blue-600 italic">
+            {shortURl}
+          </a>
+          <Button
+            variant={"link"}
+            onClick={() => navigator.clipboard.writeText(shortURl)}
+          >
+            Copy link
+          </Button>
+        </h1>
       )}
     </div>
   );

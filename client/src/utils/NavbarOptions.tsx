@@ -17,9 +17,11 @@ export const items = [
     query: "history",
     icon: Calendar,
     component: (
-      <div>
+      <div className="mt-2">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl my-3">Your previous urls and Qr Codes</h1>
+          <h1 className="text-2xl my-3 max-md:text-base">
+            Your previous urls and Qr Codes
+          </h1>
           <Link to={"/"} className="underline">
             Generate New
           </Link>

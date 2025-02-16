@@ -1,7 +1,5 @@
 const Setting = () => {
-  return (
-    <div>Currently not available</div>
-  )
-}
+  return <div className="my-4">Currently not available</div>;
+};
 
-export default Setting
+export default Setting;

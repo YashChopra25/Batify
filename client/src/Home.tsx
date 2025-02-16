@@ -9,17 +9,17 @@ const word =
 const Home = () => {
   return (
     <div
-      containerClassName="justify-start items-start"
+      // containerClassName="justify-start items-start"
       className="bg-[#25293c] min-h-screen"
     >
       <Navbar />
-      <div className="px-6 mt-10 flex flex-col gap-5">
+      <div className="px-6 mt-10 flex flex-col gap-5 max-md:gap-3">
         <div className="">
-          <p className="text-5xl text-[#cfcde4] font-bold inter-var text-center">
+          <p className="text-5xl text-[#cfcde4] font-bold inter-var text-center max-md:text-4xl">
             Welcome Yatifer
           </p>
-          <p className="w-4/5 text-3xl mx-auto text-[#cfcde4] font-bold  text-center">
-            Build stronger digital connections          
+          <p className="w-4/5 text-3xl mx-auto text-[#cfcde4] font-bold  text-center max-md:text-base max-md:w-full">
+            Build stronger digital connections
           </p>
         </div>
         <TextGenerateEffect
